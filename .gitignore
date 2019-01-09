@@ -1,0 +1,6 @@
+#Ignorar .obj 
+*.obj
+*.gif
+*.idx3-ubyte
+*.idx1-ubyte
+*.dat
