@@ -30,7 +30,7 @@ struct n_link
 struct a_i
 {
     /*Inteligencia artificial(esto se debe guardar en un archivo)*/
-    struct neuron inputs[28];
+    struct neuron input[28];
     struct neuron hidden[19];/*Promedio de la entrada y la salida*/
     struct neuron output[10];
     struct n_link l[(28*19)+(19*10)];/*Enlaces para todas las neuronas*/
@@ -190,7 +190,7 @@ int save_ai(struct a_i* ai, char filename[80])
     strcpy(joinit, filename);
     strcat(joinit, ".dat");
     out = fopen(joinit, "wb");
-    fwrite(ai, sizeof(struct a_i), 1, out);
+    fwrite(ai, sizeof(ai), 1, out);
     fclose(out);
     return 0;
 }
@@ -202,22 +202,54 @@ void load_ai(struct a_i* ai, char filename[80])
     char joinit[100];
     strcpy(joinit, filename);
     in = fopen(joinit, "rb");
-    fread(ai, sizeof(struct a_i), 1, in);
+    fread(ai, sizeof(ai), 1, in);
     fclose(in);
 }
 
-double train(int n_of_times, struct a_i* ai)
+double train_ai(struct a_i* ai, int n_of_times)
 {
     /*Esta funcion entrena la red neuronal por x veces*/
     int stop;
     for (stop = 0; stop < n_of_times; stop++)
     {
         printf("Iteracion n.%d\n", stop);
-        double r2;
-        r2 = -1 + (2*((double)rand() / (double)RAND_MAX));
-        printf("%5.14f\n", r2);
+
     }
     return 0;
+}
+
+int init_ai(struct a_i* ai)
+{
+    /*Esta funcion inicializa una IA con valores aleatorios en sus componentes*/
+    int c;//Contador que voy a reusar
+    int n_of_inp = {sizeof(ai->input)/sizeof(ai->input[0])};
+    int n_of_hid = {sizeof(ai->hidden)/sizeof(ai->hidden[0])};
+    int n_of_out = {sizeof(ai->output)/sizeof(ai->output[0])};
+    double rand_1_n1;//Variable de numero aleatorio
+    for (int c = 0; c < n_of_inp; ++c)
+    {
+        //Generar un valor aleatorio entre 1 y -1
+        rand_1_n1 = -1 + (2*((double)rand() / (double)RAND_MAX));
+        ai->input[c].id = c+1;
+        ai->input[c].n_value = rand_1_n1;
+        printf("Guardar en inputs %5.14f %i\n", rand_1_n1, c+1);
+    }
+    for (int c = 0; c < n_of_hid; ++c)
+    {
+        //Generar un valor aleatorio entre 1 y -1
+        rand_1_n1 = -1 + (2*((double)rand() / (double)RAND_MAX));
+        ai->hidden[c].id = c+1;
+        ai->hidden[c].n_value = rand_1_n1;
+        printf("Guardar en hidden %5.14f %i\n", rand_1_n1, c+1);
+    }
+    for (int c = 0; c < n_of_out; ++c)
+    {
+        //Generar un valor aleatorio entre 1 y -1
+        rand_1_n1 = -1 + (2*((double)rand() / (double)RAND_MAX));
+        ai->output[c].id = c+1;
+        ai->output[c].n_value = rand_1_n1;
+        printf("Guardar en outputs %5.14f %i\n", rand_1_n1, c+1);
+    }
 }
 
 int main()
@@ -241,14 +273,13 @@ int main()
     testing = get_next_img(tr_images, tr_labels);
     giffy_img("lol", testing.data);
     struct a_i aitest, new_ai;
-    aitest.inputs[0].n_value = 0.12345;
-    aitest.inputs[1].n_value = 0.54321;
-    printf("%4.5f\n", aitest.inputs[1].n_value);
+    init_ai(&aitest);
+    printf("%4.5f\n", aitest.input[1].n_value);
     save_ai(&aitest,"KnCriGno");
-    printf("%4.5f\n", aitest.inputs[0].n_value);
+    printf("%4.5f\n", aitest.input[0].n_value);
     load_ai(&new_ai, "KnCriGno.dat");
-    printf("%4.5f\n", new_ai.inputs[0].n_value);
-    train(20, &aitest);
+    printf("%4.5f\n", new_ai.input[0].n_value);
+    train_ai(&aitest, 20);
 
     //CleanAfterCooking
     fclose(tr_labels);
