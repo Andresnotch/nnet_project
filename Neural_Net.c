@@ -23,7 +23,8 @@ struct n_link
 {
     /*Enlace neuronal con id, su conexion y el valor que transporta*/
     int id;
-    int fromto[2];
+    int from;
+    int to;
     double l_value;
 };
 
@@ -206,14 +207,27 @@ void load_ai(struct a_i* ai, char filename[80])
     fclose(in);
 }
 
-double train_ai(struct a_i* ai, int n_of_times)
+int ai_guess(struct a_i* ai)
+{
+
+}
+
+double train_ai(struct a_i* ai,FILE* images, FILE* labels, int n_of_times)
 {
     /*Esta funcion entrena la red neuronal por x veces*/
+    int i;
+    int count = {sizeof(ai->input)/sizeof(ai->input[0])};
     int stop;
+    struct img current_img;
     for (stop = 0; stop < n_of_times; stop++)
     {
         printf("Iteracion n.%d\n", stop);
-
+        current_img = get_next_img(images, labels);
+        for (int i = 0; i < count; ++i)
+        {
+            /* Llevar la siguiente imagen a la entrada */
+            ai->input[i].n_value = current_img.data[i];
+        }
     }
     return 0;
 }
@@ -225,14 +239,12 @@ int init_ai(struct a_i* ai)
     int n_of_inp = {sizeof(ai->input)/sizeof(ai->input[0])};
     int n_of_hid = {sizeof(ai->hidden)/sizeof(ai->hidden[0])};
     int n_of_out = {sizeof(ai->output)/sizeof(ai->output[0])};
+    int n_of_links = {sizeof(ai->l)/sizeof(ai->l[0])};
     double rand_1_n1;//Variable de numero aleatorio
     for (int c = 0; c < n_of_inp; ++c)
     {
-        //Generar un valor aleatorio entre 1 y -1
-        rand_1_n1 = -1 + (2*((double)rand() / (double)RAND_MAX));
         ai->input[c].id = c+1;
-        ai->input[c].n_value = rand_1_n1;
-        printf("Guardar en inputs %5.14f %i\n", rand_1_n1, c+1);
+        ai->input[c].type = 'i';
     }
     for (int c = 0; c < n_of_hid; ++c)
     {
@@ -240,7 +252,8 @@ int init_ai(struct a_i* ai)
         rand_1_n1 = -1 + (2*((double)rand() / (double)RAND_MAX));
         ai->hidden[c].id = c+1;
         ai->hidden[c].n_value = rand_1_n1;
-        printf("Guardar en hidden %5.14f %i\n", rand_1_n1, c+1);
+        ai->input[c].type = 's';
+        printf("Guardar en hidden %i %5.14f\n", c+1, rand_1_n1);
     }
     for (int c = 0; c < n_of_out; ++c)
     {
@@ -248,8 +261,10 @@ int init_ai(struct a_i* ai)
         rand_1_n1 = -1 + (2*((double)rand() / (double)RAND_MAX));
         ai->output[c].id = c+1;
         ai->output[c].n_value = rand_1_n1;
-        printf("Guardar en outputs %5.14f %i\n", rand_1_n1, c+1);
+        ai->input[c].type = 'r';
+        printf("Guardar en outputs %i %5.14f\n", c+1, rand_1_n1);
     }
+    return 0;
 }
 
 int main()
@@ -269,9 +284,9 @@ int main()
         fgetc(tr_labels);
     }
 
-    struct img testing;
+    /*struct img testing;
     testing = get_next_img(tr_images, tr_labels);
-    giffy_img("lol", testing.data);
+    giffy_img("lol", testing.data);*/
     struct a_i aitest, new_ai;
     init_ai(&aitest);
     printf("%4.5f\n", aitest.input[1].n_value);
@@ -279,9 +294,10 @@ int main()
     printf("%4.5f\n", aitest.input[0].n_value);
     load_ai(&new_ai, "KnCriGno.dat");
     printf("%4.5f\n", new_ai.input[0].n_value);
-    train_ai(&aitest, 20);
+    train_ai(&aitest, tr_images, tr_labels, 2);
 
     //CleanAfterCooking
     fclose(tr_labels);
     fclose(tr_images);
+    system("PAUSE");
 }
